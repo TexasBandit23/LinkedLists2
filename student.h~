@@ -1,0 +1,29 @@
+#ifndef STUDENT_H
+#define STUDENT_H
+
+#include <iostream>
+
+using namespace std;
+
+class Student {
+
+public:
+  // Prototypes for functions of student class
+  Student();
+  char* getFirst();
+  char* getLast();
+  int getID();
+  void setID(int nextID);
+  float getGPA();
+  void setGPA(float nextGPA);
+  void print(); //prints out a student and all of their data
+
+private:
+  // All variables are private
+  char first[81];
+  char last[81];
+  int ID;
+  float GPA;
+};
+
+#endif

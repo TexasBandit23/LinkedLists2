@@ -1,0 +1,222 @@
+//Author: Tejas Pandit
+//LinkedLists Part 2
+//This code allows the user to create a student list that can be added to, subtracted from, or printed.
+//The user can also ask for the average of all of the GPAs of the students in the list and can quit anytime.
+//Worked with Jazveer Kaler and Arjun Pai
+
+
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include "node.h"
+#include "student.h"
+using namespace std;
+
+// Function Initilization
+void ADD(Node* &head, Node* current, Node* previous, Node* node);
+void PRINT(Node* head);
+void DELETE (Node* &head, Node* previous, Node* current, int ID);
+void AVERAGE(Node* head, float totalSum, int numOfEntries);
+
+int main() {
+  bool run = true;
+  char input[81];
+  Node* head = nullptr; 
+    
+  cout << "This is StudentList..." << endl;
+
+  //Starts the program
+  while (run == true) {
+    cout << endl;
+    cout << "Type: ADD, PRINT, DELETE, AVERAGE, or QUIT." << endl;
+    cout << "Type ADD to add a student." << endl;
+    cout << "Type PRINT to print all students, their ID, and their GPA." << endl;
+    cout << "Type AVERAGE to return the average GPA of the students currently in the list." << endl;
+    cout << "Type DELETE to delete a student by ID." << endl;
+    cout << "Type QUIT to end the program." << endl;
+    
+    cin.get(input, 81);
+    cin.ignore(81, '\n');
+    
+    if (strcmp(input, "ADD") == 0) {
+      Student* newStudent = new Student();
+      //Takes in information
+      cout << "Enter First Name: " << endl;
+      char inputName[20];
+      cin.get(inputName, 20);
+      cin.ignore(80, '\n');  
+      strcpy(newStudent->getFirst(), inputName);
+      
+      cout << "Enter Last Name: " << endl;
+      cin.get(inputName, 20);
+      cin.ignore(80, '\n');
+      strcpy(newStudent->getLast(), inputName);
+      
+      cout << "Enter Student ID: " << endl;
+      int num1;
+      cin >> num1;
+      cin.ignore(80, '\n');  
+      newStudent->setID(num1);
+      
+      cout << "Enter Student GPA: " << endl;
+      float num2;
+      cin >> num2;
+      cin.ignore(80, '\n');  
+      newStudent->setGPA(num2);
+
+      Node* inputNode = new Node(newStudent);
+
+      cout << "Adding..." << endl;
+      
+      ADD(head, head, head, inputNode); //runs add function
+    }
+
+      //print
+    else if (strcmp(input, "PRINT") == 0) {
+      cout << "Printing..." << endl;
+      PRINT(head);
+    }
+
+      
+    else if (strcmp(input, "DELETE") == 0) { //funciton keeps crashing no idea whats going on
+        int ID = 0;
+        cout << "Enter the ID of the Student You Would Like to Delete" << endl;
+        cin >> ID;
+        cin.ignore(11, '\n'); //was missing this line 
+
+	cout << "Deleting..." << endl;
+	
+        DELETE(head, head, head, ID);
+    }
+    
+    else if (strcmp(input, "AVERAGE") == 0) {
+      float totalSum = 0;
+      int numOfEntries = 0;
+
+      cout << "Averaging..." << endl;
+      
+      AVERAGE(head, totalSum, numOfEntries);
+      
+    }
+    
+    else if (strcmp(input, "QUIT") == 0) {
+      cout << "Quitting..." << endl;
+      run = false;
+    }
+    
+    else {
+      cout << "Please enter one of the specified commands" << endl;
+    }
+  }
+}
+
+// Add Function
+//NOTE: Every single function has a case where if the list is empty
+void ADD(Node* &head, Node* current, Node* previous, Node* node) {
+  if (head == nullptr) {
+    head = node;
+  }
+
+    //inserts based on ID
+  else {
+    if (node->getStudent()->getID() < head->getStudent()->getID()) {
+      Node* temp = head;
+      head = node;
+      head->setNext(temp);
+    }
+      //Something not working here
+    else if (node->getStudent()->getID() < current->getStudent()->getID()) {
+      previous->setNext(node);
+      node->setNext(current);
+    }
+      //end of list
+    else if (current->getNext() == nullptr) {
+      current->setNext(node);
+    }
+    else {
+      ADD(head, current->getNext(), current, node); //Recursive
+    }
+    return;
+  }
+  return;
+}
+
+// print
+void PRINT(Node* head) {
+  if (head != nullptr) {
+    head->getStudent()->print();
+    PRINT(head->getNext());
+  }
+}
+
+//
+void DELETE(Node* &head, Node* previous, Node* current, int ID) {
+    if (head == nullptr) {
+        cout << "No Students" << endl;
+        return;
+    }
+
+    if (ID == current->getStudent()->getID()) {
+        if (current == head) {
+            head = head->getNext();
+            delete current;
+        } else {
+            previous->setNext(current->getNext());
+            delete current;
+        }
+        cout << "Student " << ID << " Deleted Successfully." << endl;
+        return;
+    }
+      //checks if there are any many more nodes in the list
+    if (current->getNext() != nullptr) {
+        DELETE(head, current, current->getNext(), ID);
+    } else {
+        cout << "Student " << ID << " not found." << endl;
+    }
+}
+
+//Average
+void AVERAGE(Node* head, float totalSum, int numOfEntries) {
+  if (head == nullptr && numOfEntries == 0) {
+    cout << "No Students Currently in the List" << endl;
+  }
+  else if (head != nullptr) {
+    totalSum += head->getStudent()->getGPA();
+    numOfEntries++;
+    AVERAGE(head->getNext(), totalSum, numOfEntries); //using recursion to iterate through the list and add gpa to total
+  }
+  //returns average
+  else {
+    cout << "Average GPA: ";
+    cout << fixed << setprecision(2) << (totalSum / numOfEntries) << endl;
+  }
+}
+
+
+//Some code that I was working on when I had no idea how to do recursion. Code did not work so I restarted
+/*
+void add(Node* &current) {
+    if (current == nullptr) {
+        Student* newStudent = new Student();
+        cout << "Enter first name: " << endl;
+        cin >> newStudent->firstName;
+        cout << "Enter GPA: " << endl;
+        cin >> newStudent->GPA;
+
+        current = new Node(newStudent);
+        cout << "Student added..." << endl;
+    }
+    else if (current->next == nullptr && current->student->studentID >= current->student->ID) {
+        Student* newStudent = new Student();
+        cout << "Enter GPA: " << endl;
+        cin >> newStudent->GPA;
+
+        Node* newNode = new Node(newStudent);
+        newNode->next = current->next;
+        current->next = newNode;
+        cout << "Student added..." << endl;
+    } else {
+        add(current->next);
+    }
+}
+*/
